@@ -1,18 +1,26 @@
-defmodule BulkGcodeUpdater do
-  @moduledoc """
-  Documentation for `BulkGcodeUpdater`.
-  """
+defmodule BulkGcodeUpdater.Temperature do
+  import Plug.Conn
 
-  @doc """
-  Hello world.
+  def init(options) do
+    options
+  end
 
-  ## Examples
+  def call(
+        %Plug.Conn{params: %{"file_path" => file_path, "temperature" => temperature}} = conn,
+        _opts
+      ) do
+    conn
+    |> put_resp_content_type("text/plain")
+    |> send_resp(200, change_temperature(file_path, temperature))
+  end
 
-      iex> BulkGcodeUpdater.hello()
-      :world
+  # M104 Command sets the temperature of the extruder
+  # M109 Command makes the printer wait until the extruder reaches the target temperature
+  def change_temperature(_file_path, _temperature) do
+    file_stream = File.stream!("./priv/resources/benchy.gcode", [])
 
-  """
-  def hello do
-    :world
+    res = Enum.at(file_stream, 0) |> IO.inspect()
+
+    res
   end
 end

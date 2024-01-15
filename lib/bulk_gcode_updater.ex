@@ -17,10 +17,31 @@ defmodule BulkGcodeUpdater.Temperature do
   # M104 Command sets the temperature of the extruder
   # M109 Command makes the printer wait until the extruder reaches the target temperature
   def change_temperature(_file_path, _temperature) do
-    file_stream = File.stream!("./priv/resources/benchy.gcode", [])
+    file_path = "./priv/resources/benchy.gcode"
+    temp = 200
 
-    res = Enum.at(file_stream, 0) |> IO.inspect()
+    res =
+      file_path
+      |> File.stream!([])
+      |> Enum.map(&process_instruction(&1, temp))
 
-    res
+    File.write(file_path, res)
+  end
+
+  defp process_instruction(instruction, temp) do
+    if needs_amending?(instruction) do
+      String.replace(instruction, "S220", "S#{temp}")
+    else
+      instruction
+    end
+  end
+
+  defp needs_amending?(instruction) do
+    contains_command? =
+      String.contains?(instruction, "M104") or String.contains?(instruction, "M109")
+
+    sets_to_zero? = String.contains?(instruction, "S0")
+
+    contains_command? and not sets_to_zero?
   end
 end

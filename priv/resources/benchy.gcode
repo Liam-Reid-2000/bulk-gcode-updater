@@ -12,9 +12,9 @@
 M140 S50
 M105
 M190 S50
-M104 S220
+M104 S201
 M105
-M109 S220
+M109 S201
 M82 ;absolute extrusion mode
 M201 X500.00 Y500.00 Z100.00 E5000.00 ;Setup machine max acceleration
 M203 X500.00 Y500.00 Z10.00 E50.00 ;Setup machine max feedrate
